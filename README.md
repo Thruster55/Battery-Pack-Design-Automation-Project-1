@@ -48,6 +48,20 @@ We utilize the NASA PCoE "Randomized Battery Usage" dataset, specifically datase
 | Measurements | Voltage, Current, Temperature, Time | Essential inputs for system identification. |
 
 
+_ Matlab Coding _
+
+Data Integrity Check
+
+Before proceeding to estimation, the extracted data must pass a rigorous integrity check. Attempting to fit a model to corrupted data is the primary cause of convergence failure in optimization.
+
+- Sample Rate Verification
+- Relaxation Completeness
+- Noise Floor
+
+  
+Phase III: Cell Characterization and Parameter Estimation
+
+With clean pulse data secured, we move to System Identification . This is the process of finding the numerical values ​​for the equivalent circuit components ($E_m, R_0, R_1, C_1, R_2, C_2, R_3, C_3$) such that the model's output voltage matches the experimental voltage.  We utilize the Levenberg-Marquardt or Trust-Region-Reflective algorithms provided by MATLAB's Optimization Toolbox. 
 
 
 
