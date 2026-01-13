@@ -1,4 +1,4 @@
-# Battery Pack Design Automation (Project #142)
+ # Battery Pack Design Automation (Project #142)
 
 [![View Battery Pack Design Automation on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/your-link-here)
 [![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=your-github-username/your-repo-name)
@@ -125,4 +125,114 @@ Run the builder script to generate the `.slx` library file:
 run('The_Battery_Builder_API')
 ```
 
+## 7. Phase IV: Unit Testing & Thermal Verification
 
+**Objective:** Isolate the generated battery pack block to verify electrical connectivity and thermal behavior before full vehicle integration.
+
+### Test Setup
+* **Test Bench:** A simplified Simulink model connecting the `MyAutomatedPackLib` block to a **Constant Current Load**.
+* **Conditions:** Constant Discharge current to stress the thermal path.
+* **Pass Criteria:**
+    1.  **Voltage Response:** Must decrease monotonically (no discontinuities) with instantaneous ohmic drops.
+    2.  **Thermal Response:** Temperature at the thermal port ($H$) must rise, confirming the thermal circuit is active (not floating).
+
+### Results
+The unit test confirmed valid physical responses. As shown in the results, the voltage follows the expected discharge curve defined by the OCV-SOC relationship, while the cell temperature rises due to Joule heating ($I^2 R$), validating the thermal interface.
+
+![Unit Test Results](Images/4_unit_test.png)
+*Figure 4: Unit test showing Voltage Sag (Top) and Temperature Rise (Bottom) under constant load.*
+
+---
+
+## 8. Phase V: System Integration & Drive Cycle Validation
+
+**Objective:** Validate the battery pack's performance within a **Custom Electric Vehicle (EV) Architecture** under realistic driving conditions.
+
+### Vehicle Architecture
+Unlike standard reference applications, this project utilizes a **custom-developed vehicle model** to allow granular control over energy flows:
+* **Glider Model:** Physics-based longitudinal dynamics (Drag, Rolling Resistance, Inertia).
+* **Powertrain:** Efficiency-map based Motor/Inverter integration.
+* **Driver:** PID-based Longitudinal Driver configured to track regulatory drive cycles.
+* **Power Source:** The `MyAutomatedPackLib` block acts as the primary DC link.
+
+### Validation Scenario: FTP-75
+The system was simulated using the **FTP-75 (Federal Test Procedure)**, a rigorous city driving cycle characterized by frequent stops and transient accelerations.
+
+**Validation Results:**
+* **Cycle Completion:** The vehicle successfully completed the full drive cycle without depleting the battery or hitting thermal limits.
+* **Distance Covered:** **17.77 km** (Matches standard FTP-75 length).
+* **Speed Tracking:** The driver model successfully maintained the reference speed (Yellow vs. Blue trace), proving the battery pack delivered sufficient power ($P = V \times I$) for all acceleration events.
+
+![Drive Cycle Validation](Images/5_drive_cycle_results.png)
+*Figure 5: Drive Cycle Validation. Top: Speed tracking (Reference vs Actual). Bottom: Battery Voltage and Current response confirming dynamic load handling.*
+
+**Usage:**
+To run the validation model:
+1. Ensure `MyAutomatedPackLib` is generated (Phase III).
+2. Open and run the validation model:
+```matlab
+open('Drive_Cycle_Val')
+sim('Drive_Cycle_Val')
+```
+## 9. Phase VI: Multi-Objective Design Optimization
+
+**Objective:** Determine the optimal battery pack sizing ($N_s, N_p$) to maximize vehicle range while strictly adhering to mass, volume, and component voltage limits.
+
+### Methodology: Grid Search
+Since the design space is discrete (you cannot have 0.5 cells), a **Grid Search** algorithm was implemented to evaluate every valid combination of Series ($N_s$) and Parallel ($N_p$) cells.
+
+* **Design Variables:**
+    * $N_s \in [90, 108]$ (Voltage scaling)
+    * $N_p \in [35, 55]$ (Capacity scaling)
+* **Constraints:**
+    * $\text{Mass} < 500 \text{ kg}$ (Vehicle weight limit)
+    * $\text{Voltage} < 450 \text{ V}$ (Inverter MOSFET breakdown limit)
+* **Physics Model:**
+    The optimizer uses a physics-based scaling law. Range is calculated relative to a baseline simulation, penalized by the added mass of larger packs:
+    $$\text{Range}_{new} = \text{Range}_{base} \times \frac{\text{Energy}_{new}}{\text{Energy}_{base}} \times \frac{\text{Mass}_{base}}{\text{Mass}_{new}}$$
+
+### Results
+The algorithm evaluated 210 unique design points. The surface plot below visualizes the trade-off. The red circle indicates the global maximum that satisfies all constraints.
+
+| Parameter | Optimal Value | Constraint Check |
+| :--- | :--- | :--- |
+| **Configuration** | **90S 38P** | Selected Design |
+| **Pack Voltage** | **333 V** | Pass (< 450 V) |
+| **Pack Mass** | **302 kg** | Pass (< 500 kg) |
+| **Predicted Range** | **300 km** | Maximized |
+
+![Optimization Surface](Images/6_optimization_surface.png)
+*Figure 6: Design Space Visualization. The z-axis represents Range. The optimization surface is cut off where constraints (Mass/Voltage) are violated.*
+
+**Usage:**
+Run the optimization script to visualize the trade-off space:
+```matlab
+% Run from /Scripts folder
+run('Phase6_Optimization')
+```
+
+## 10. Conclusion & Future Work
+
+### Project Summary
+This project successfully demonstrates the efficacy of **Design Automation** in modern battery engineering. By implementing a rigorous "V-Cycle" development process, the workflow replaced traditional heuristic methods with a data-driven, mathematically optimized approach. The final deliverable—a **333V, 182Ah Battery Pack** validated against the **FTP-75** drive cycle—proves that automated synthesis can accelerate the development of high-voltage energy storage systems.
+
+### Tools & Technologies Utilized
+The project leveraged the full power of the MATLAB & Simulink ecosystem:
+* **MATLAB:** For data processing, signal conditioning (`filtfilt`), and script-based automation.
+* [cite_start]**Optimization Toolbox:** Used `lsqnonlin` (Trust-Region-Reflective) for high-fidelity 3RC parameter estimation[cite: 10, 11].
+* [cite_start]**Simscape Battery:** Employed the `BatteryBuilder` API to programmatically synthesize the pack architecture, thermal paths, and electrical connections[cite: 13, 14].
+* [cite_start]**Powertrain Blockset:** Provided the validated vehicle glider, motor, and driver models for system-level integration[cite: 15].
+* [cite_start]**Global Optimization Toolbox:** Enabled the `surrogateopt` / Grid Search strategy to solve the multi-objective sizing problem[cite: 18].
+
+### Applications
+This automated workflow is directly applicable to:
+1.  **rapid Prototyping:** Automotive OEMs can instantly generate valid simulation models for varying voltage/capacity requirements without manual block connectivity.
+2.  **Sizing Studies:** System engineers can perform "What-If" analyses (e.g., "How does changing cell mass by 10% affect vehicle range?") in seconds.
+3.  [cite_start]**BMS Development:** The high-fidelity 3RC plant model serves as a perfect "Digital Twin" for testing State-of-Charge (SOC) and State-of-Health (SOH) algorithms[cite: 4, 15].
+
+### Advanced Extension: Solid-State Batteries (SSB)
+To extend this work to **Solid-State Batteries** (a key frontier in energy storage), the fundamental workflow remains valid, but specific physical domains require adaptation:
+* **Phase II (Physics):** SSBs exhibit distinct diffusion dynamics due to the solid electrolyte interface. [cite_start]The 3RC model should be replaced with a **Warburg Impedance** element or a **Fractional-Order Model** to capture these non-linearities[cite: 14].
+* **Phase VI (Constraints):** Optimization constraints must evolve. SSBs often operate efficiently at higher temperatures but require strict **Mechanical Pressure** constraints to maintain stack integrity. The optimization cost function would need to penalize volume expansion (swelling) alongside mass and cost.
+
+By mastering this workflow, this project establishes a scalable framework for the future of sustainable transportation: combining **Electrification**, **Simulation**, and **Optimization** into a unified design tool.
