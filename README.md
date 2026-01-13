@@ -47,7 +47,8 @@ The solution follows a rigorous "V-Cycle" development process:
 ### Results
 The extracted pulse covers the full discharge phase with adequate rest time for OCV recovery.
 
-![Pulse Extraction](Images/1_pulse_extraction.png)
+<img width="1139" height="739" alt="Extracted Pulse Data - Fresh State" src="https://github.com/user-attachments/assets/fe97fcdd-cf41-4ce2-ae99-319b31c7903d" />
+
 
 *Figure 1: Extracted voltage and current profiles from NASA RW9 dataset (Fresh State).*
 
@@ -83,7 +84,8 @@ The optimization converged with an exit flag of 3 (change in residual < toleranc
 | **Branch 2** | 0.0078 | 557.5 | **4.33 s** | Solid Electrolyte Interphase (SEI) |
 | **Branch 3** | 0.120 | 2000.0 | **239.5 s** | Diffusion (Slow) |
 
-![Model Validation](Images/2_model_fit.png)
+<img width="1141" height="746" alt="3RC Model Fit" src="https://github.com/user-attachments/assets/d7e1da84-742e-44a8-a009-ba988a51a3af" />
+
 *Figure 2: Validation of the 3RC model against experimental pulse data. The model (red dashed) captures both the instantaneous drop and the slow diffusion tail.*
 
 **Usage:**
@@ -115,7 +117,8 @@ Using the **Simscape Battery Builder API**, a "Bottom-Up" architecture was defin
 | **Total Energy** | **60.7 kWh** | $333 \text{ V} \times 182.4 \text{ Ah}$ |
 | **Estimated Mass** | **232 kg** | Cells only ($90 \times 38 \times 0.068 \text{ kg}$) |
 
-![Pack Library Block](Images/3_pack_library.png)
+<img width="956" height="522" alt="Battery Pack" src="https://github.com/user-attachments/assets/5b838ccc-b1e5-4aa0-aaa7-4730c9a27280" />
+
 *Figure 3: The automatically generated battery pack block in Simulink, ready for vehicle integration.*
 
 **Usage:**
@@ -139,9 +142,6 @@ run('The_Battery_Builder_API')
 ### Results
 The unit test confirmed valid physical responses. As shown in the results, the voltage follows the expected discharge curve defined by the OCV-SOC relationship, while the cell temperature rises due to Joule heating ($I^2 R$), validating the thermal interface.
 
-![Unit Test Results](Images/4_unit_test.png)
-*Figure 4: Unit test showing Voltage Sag (Top) and Temperature Rise (Bottom) under constant load.*
-
 ---
 
 ## 8. Phase V: System Integration & Drive Cycle Validation
@@ -162,9 +162,6 @@ The system was simulated using the **FTP-75 (Federal Test Procedure)**, a rigoro
 * **Cycle Completion:** The vehicle successfully completed the full drive cycle without depleting the battery or hitting thermal limits.
 * **Distance Covered:** **17.77 km** (Matches standard FTP-75 length).
 * **Speed Tracking:** The driver model successfully maintained the reference speed (Yellow vs. Blue trace), proving the battery pack delivered sufficient power ($P = V \times I$) for all acceleration events.
-
-![Drive Cycle Validation](Images/5_drive_cycle_results.png)
-*Figure 5: Drive Cycle Validation. Top: Speed tracking (Reference vs Actual). Bottom: Battery Voltage and Current response confirming dynamic load handling.*
 
 **Usage:**
 To run the validation model:
@@ -201,7 +198,10 @@ The algorithm evaluated 210 unique design points. The surface plot below visuali
 | **Pack Mass** | **302 kg** | Pass (< 500 kg) |
 | **Predicted Range** | **300 km** | Maximized |
 
-![Optimization Surface](Images/6_optimization_surface.png)
+
+<img width="1158" height="711" alt="Design Space" src="https://github.com/user-attachments/assets/4ff875d9-8731-4ae2-adbc-7861ed38bf11" />
+
+
 *Figure 6: Design Space Visualization. The z-axis represents Range. The optimization surface is cut off where constraints (Mass/Voltage) are violated.*
 
 **Usage:**
