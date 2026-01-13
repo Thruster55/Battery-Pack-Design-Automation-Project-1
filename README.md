@@ -226,9 +226,9 @@ The project leveraged the full power of the MATLAB & Simulink ecosystem:
 
 ### Applications
 This automated workflow is directly applicable to:
-1.  **rapid Prototyping:** Automotive OEMs can instantly generate valid simulation models for varying voltage/capacity requirements without manual block connectivity.
+1.  **Rapid Prototyping:** Automotive OEMs can instantly generate valid simulation models for varying voltage/capacity requirements without manual block connectivity.
 2.  **Sizing Studies:** System engineers can perform "What-If" analyses (e.g., "How does changing cell mass by 10% affect vehicle range?") in seconds.
-3.  [cite_start]**BMS Development:** The high-fidelity 3RC plant model serves as a perfect "Digital Twin" for testing State-of-Charge (SOC) and State-of-Health (SOH) algorithms[cite: 4, 15].
+3.  **BMS Development:** The high-fidelity 3RC plant model serves as a perfect "Digital Twin" for testing State-of-Charge (SOC) and State-of-Health (SOH) algorithms[cite: 4, 15].
 
 ### Advanced Extension: Solid-State Batteries (SSB)
 To extend this work to **Solid-State Batteries** (a key frontier in energy storage), the fundamental workflow remains valid, but specific physical domains require adaptation:
