@@ -189,7 +189,7 @@ Since the design space is discrete (you cannot have 0.5 cells), a **Grid Search*
     * $\text{Voltage} < 450 \text{ V}$ (Inverter MOSFET breakdown limit)
 * **Physics Model:**
     The optimizer uses a physics-based scaling law. Range is calculated relative to a baseline simulation, penalized by the added mass of larger packs:
-    $$\text{Range}_{new} = \text{Range}_{base} \times \frac{\text{Energy}_{new}}{\text{Energy}_{base}} \times \frac{\text{Mass}_{base}}{\text{Mass}_{new}}$$
+
 
 ### Results
 The algorithm evaluated 210 unique design points. The surface plot below visualizes the trade-off. The red circle indicates the global maximum that satisfies all constraints.
@@ -219,20 +219,20 @@ This project successfully demonstrates the efficacy of **Design Automation** in 
 ### Tools & Technologies Utilized
 The project leveraged the full power of the MATLAB & Simulink ecosystem:
 * **MATLAB:** For data processing, signal conditioning (`filtfilt`), and script-based automation.
-* [cite_start]**Optimization Toolbox:** Used `lsqnonlin` (Trust-Region-Reflective) for high-fidelity 3RC parameter estimation[cite: 10, 11].
-* [cite_start]**Simscape Battery:** Employed the `BatteryBuilder` API to programmatically synthesize the pack architecture, thermal paths, and electrical connections[cite: 13, 14].
-* [cite_start]**Powertrain Blockset:** Provided the validated vehicle glider, motor, and driver models for system-level integration[cite: 15].
-* [cite_start]**Global Optimization Toolbox:** Enabled the `surrogateopt` / Grid Search strategy to solve the multi-objective sizing problem[cite: 18].
+* **Optimization Toolbox:** Used `lsqnonlin` (Trust-Region-Reflective) for high-fidelity 3RC parameter estimation.
+* **Simscape Battery:** Employed the `BatteryBuilder` API to programmatically synthesize the pack architecture, thermal paths, and electrical connections.
+* **Powertrain Blockset:** Provided the validated vehicle glider, motor, and driver models for system-level integration.
+* **Global Optimization Toolbox:** Enabled the `surrogateopt` / Grid Search strategy to solve the multi-objective sizing problem.
 
 ### Applications
 This automated workflow is directly applicable to:
 1.  **Rapid Prototyping:** Automotive OEMs can instantly generate valid simulation models for varying voltage/capacity requirements without manual block connectivity.
 2.  **Sizing Studies:** System engineers can perform "What-If" analyses (e.g., "How does changing cell mass by 10% affect vehicle range?") in seconds.
-3.  **BMS Development:** The high-fidelity 3RC plant model serves as a perfect "Digital Twin" for testing State-of-Charge (SOC) and State-of-Health (SOH) algorithms[cite: 4, 15].
+3.  **BMS Development:** The high-fidelity 3RC plant model serves as a perfect "Digital Twin" for testing State-of-Charge (SOC) and State-of-Health (SOH) algorithms.
 
 ### Advanced Extension: Solid-State Batteries (SSB)
 To extend this work to **Solid-State Batteries** (a key frontier in energy storage), the fundamental workflow remains valid, but specific physical domains require adaptation:
-* **Phase II (Physics):** SSBs exhibit distinct diffusion dynamics due to the solid electrolyte interface. [cite_start]The 3RC model should be replaced with a **Warburg Impedance** element or a **Fractional-Order Model** to capture these non-linearities[cite: 14].
+* **Phase II (Physics):** SSBs exhibit distinct diffusion dynamics due to the solid electrolyte interface.The 3RC model should be replaced with a **Warburg Impedance** element or a **Fractional-Order Model** to capture these non-linearities.
 * **Phase VI (Constraints):** Optimization constraints must evolve. SSBs often operate efficiently at higher temperatures but require strict **Mechanical Pressure** constraints to maintain stack integrity. The optimization cost function would need to penalize volume expansion (swelling) alongside mass and cost.
 
 By mastering this workflow, this project establishes a scalable framework for the future of sustainable transportation: combining **Electrification**, **Simulation**, and **Optimization** into a unified design tool.
