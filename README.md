@@ -31,7 +31,6 @@ The solution follows a rigorous "V-Cycle" development process:
 5.  **Optimization:** Using `surrogateopt` to maximize range under mass/volume constraints.
 
 ---
----
 
 ## 4. Phase I: Data Acquisition & Preprocessing
 
@@ -57,3 +56,73 @@ Run the extraction script to generate the processed `.mat` file:
 ```matlab
 % Run from /Scripts folder
 run('Preprocessing')
+``` 
+
+---
+
+## 5. Phase II: Cell Characterization & Parameter Estimation
+
+**Objective:** Identify the electrochemical parameters ($R_0, R_1, C_1, ...$) of a 3RC Thevenin Equivalent Circuit Model (ECM) that minimize the error between simulated and experimental voltage.
+
+### Methodology
+* **Model Topology:** 3RC (Three parallel Resistor-Capacitor branches in series with a resistor).
+* **Optimization Algorithm:** Non-Linear Least Squares (`lsqnonlin`) using the **Trust-Region-Reflective** algorithm.
+* **Cost Function:** Minimized the sum of squared errors between measured voltage ($V_{meas}$) and model voltage ($V_{model}$).
+
+### Results
+The optimization converged with an exit flag of 3 (change in residual < tolerance), achieving a high-fidelity fit.
+
+* **Final RMSE:** **4.34 mV** (0.1% error relative to nominal voltage).
+
+**Estimated Parameters:**
+
+| Component | Resistance ($\Omega$) | Capacitance (F) | Time Constant $\tau$ (s) | Dynamics Captured |
+| :--- | :--- | :--- | :--- | :--- |
+| **Series** ($R_0$) | 0.050 | N/A | Instant | Ohmic Drop |
+| **Branch 1** | 0.001 | 100.0 | **0.10 s** | Double Layer / Charge Transfer |
+| **Branch 2** | 0.0078 | 557.5 | **4.33 s** | Solid Electrolyte Interphase (SEI) |
+| **Branch 3** | 0.120 | 2000.0 | **239.5 s** | Diffusion (Slow) |
+
+![Model Validation](Images/2_model_fit.png)
+*Figure 2: Validation of the 3RC model against experimental pulse data. The model (red dashed) captures both the instantaneous drop and the slow diffusion tail.*
+
+**Usage:**
+Run the estimation script to generate the parameters file:
+```matlab
+% Run from /Scripts folder
+run('Cell_Characterization_and_Parameter_Estimation')
+
+```
+
+## 6. Phase III: Automated Pack Synthesis
+
+**Objective:** Programmatically generate a detailed Simscape Battery model from the estimated cell parameters, scaling up to a full electric vehicle pack.
+
+### Methodology
+Using the **Simscape Battery Builder API**, a "Bottom-Up" architecture was defined in MATLAB code to automatically generate the Simulink block. This approach avoids manual block placement and ensures consistent parameter propagation.
+
+* **Cell Format:** 21700 Cylindrical (NMC Chemistry).
+* **Thermal Strategy:** Cell-based thermal resistance (Passive/Liquid cooling ready).
+* **Architecture:** **90S 38P** (90 Series, 38 Parallel).
+
+### Pack Specifications
+
+| Attribute | Value | Derivation |
+| :--- | :--- | :--- |
+| **Configuration** | **90s 38p** | 38 Parallel Cells $\times$ 90 Series Groups |
+| **Nominal Voltage** | **333 V** | $90 \times 3.7 \text{ V}$ |
+| **Total Capacity** | **182.4 Ah** | $38 \times 4.8 \text{ Ah}$ |
+| **Total Energy** | **60.7 kWh** | $333 \text{ V} \times 182.4 \text{ Ah}$ |
+| **Estimated Mass** | **232 kg** | Cells only ($90 \times 38 \times 0.068 \text{ kg}$) |
+
+![Pack Library Block](Images/3_pack_library.png)
+*Figure 3: The automatically generated battery pack block in Simulink, ready for vehicle integration.*
+
+**Usage:**
+Run the builder script to generate the `.slx` library file:
+```matlab
+% Run from /Scripts folder
+run('The_Battery_Builder_API')
+```
+
+
